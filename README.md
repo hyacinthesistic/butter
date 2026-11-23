@@ -28,6 +28,9 @@ application written in Rust.
   and stop it. A terminal can be popped out into its own window and back in.
   The terminal button opens a Rosemary shell (`rosemary run /bin/bash`) in the
   bottle. The power button in a bottle's header stops the whole bottle.
+- **Discord Rich Presence** is an opt-in, experimental feature that shows the
+  Roblox game you are in on your Discord profile. See
+  [Discord Rich Presence](#discord-rich-presence).
 
 ## Install
 
@@ -97,6 +100,34 @@ again from the main menu or with F1.
 3. Install an app into the bottle's `/Applications`, or add a `.app` bundle
    or Mach-O executable, and run it.
 4. To start it from your desktop, choose **Create Shortcut** in its menu.
+
+## Discord Rich Presence
+
+Butter can show what you are playing on Discord: the game's name, creator and
+icon, an elapsed timer, and any status the game sets itself through
+BloxstrapRPC. While Roblox is open but you are not in a game, it shows "In the
+Roblox app". This is experimental and off by default.
+
+Turn it on with an environment variable. For the Flatpak:
+
+```sh
+flatpak override --user --env=BUTTER_DISCORD_PRESENCE=1 io.github.microlift.butter
+```
+
+The Flatpak also needs access to Discord's socket. For the native Discord:
+
+```sh
+flatpak override --user --filesystem=xdg-run/discord-ipc-0 io.github.microlift.butter
+```
+
+Flatpak and Snap builds of Discord keep their socket in a subfolder of the
+runtime directory. Butter looks there too, but the sandbox has to allow it, for
+example with `--filesystem=xdg-run/app/com.discordapp.Discord` (untested).
+
+Butter finds the game by following Roblox's log files in the bottle
+(`Library/Logs/Roblox`), so it also works when you start Butter in the middle
+of a game. To see what it is doing, set `BUTTER_DISCORD_DEBUG=1`: it prints
+`joined place ...`, `connected to Discord` and `presence set` on stderr.
 
 ## Documentation
 

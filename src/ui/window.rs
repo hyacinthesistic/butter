@@ -142,6 +142,7 @@ impl Window {
             open: RefCell::default(),
             managers: RefCell::default(),
         }));
+        crate::hook::install(&this.0.sessions);
         let weak = Rc::downgrade(&this.0);
         this.0.nav.connect_popped(move |_, popped| {
             if let Some(inner) = weak.upgrade() {
