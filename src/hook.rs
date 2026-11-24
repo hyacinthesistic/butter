@@ -68,7 +68,7 @@ pub fn install(sessions: &Sessions) {
                     if !is_roblox(&session) {
                         continue;
                     }
-                    running |= session.is_alive();
+                    running |= session.status().is_running();
 
                     // One log tailer per bottle, however many sessions.
                     let bottle_id = bottle.id.to_string();
@@ -99,10 +99,21 @@ pub fn install(sessions: &Sessions) {
             }
         }
     };
+    let sweep = Rc::new(sweep);
     sweep();
-    sessions.connect_changed(move || {
+    {
+        let sweep = sweep.clone();
+        sessions.connect_changed(move || {
+            sweep();
+            true
+        });
+    }
+    // Not every exit notifies `connect_changed`, so also look every few seconds.
+    let sessions_for_timer = sessions.clone();
+    gtk::glib::timeout_add_seconds_local(3, move || {
+        sessions_for_timer.poll();
         sweep();
-        true
+        gtk::glib::ControlFlow::Continue
     });
 }
 
